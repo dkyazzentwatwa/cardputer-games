@@ -210,7 +210,7 @@ void GameScreen::drawLauncher(bool force) {
   gfx.drawFastHLine(0, footerY, width, kBorder);
   gfx.setTextColor(kMuted, GAMER_BLACK);
   gfx.setCursor(margin, footerY + 5);
-  gfx.print(_engine.soundMuted() ? "WASD Ent M sound Del/Q" : "WASD Ent M mute Del/Q");
+  gfx.print(_engine.soundMuted() ? "WASD Ent M sound Del/Q home" : "WASD Ent M mute Del/Q home");
 
   _dirty = false;
   _lastRenderedGame = _selectedGame;

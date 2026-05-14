@@ -1,23 +1,64 @@
-# Cardputer Games
+# Cypher-Gamer for Cardputer
 
-Standalone Arduino CLI firmware for running the Cardputer game launcher only.
-This folder was extracted from `cardputer-bot` so the games can be tuned without
-the AI chat, pet, web portal, WiFi/BLE, journal, OpenAI, or setup-wizard code.
+Standalone Arduino CLI firmware that turns the M5Stack Cardputer ADV into a
+boot-to-games handheld. Built by littlehakr, tuned for quick play sessions, and
+kept intentionally offline: no chat stack, no WiFi setup, no web portal, no
+journal, no cloud account, and no setup wizard.
+
+On boot, the device shows a 4-second `Cypher-Gamer` intro splash, then opens the
+`CARDPUTER GAMES` launcher with 53 tiny games ready to play.
+
+## Highlights
+
+- 53 built-in games across arcade, racing, motion, shooter, puzzle, board, and
+  reflex categories.
+- Full Cardputer ADV / Stamp-S3A target with the canonical Arduino CLI `adv`
+  profile in `sketch.yaml`.
+- Centered `128x64` logical game canvas mapped onto the Cardputer `240x135`
+  ST7789 display for compatibility with Pico Gamer-style loops.
+- Flicker-reduced rendering through an offscreen `M5Canvas` path when available.
+- Keyboard-first controls with arrows, `WASD`, `HJKL`, `Enter`, `Space`, and
+  Button A support.
+- Short procedural sound cues with an in-launcher mute toggle.
 
 ## Hardware
 
-- M5Stack Cardputer ADV / Stamp-S3A
-- 240 x 135 ST7789 display
-- 56-key TCA8418 keyboard
-- 8 MB flash
+| Part | Target |
+| --- | --- |
+| Board | M5Stack Cardputer ADV / Stamp-S3A |
+| Display | 240 x 135 ST7789 |
+| Input | 56-key TCA8418 keyboard plus Button A |
+| Flash | 8 MB |
+| Runtime | Standalone offline Arduino firmware |
 
-The game engine keeps the original Pico Gamer-style `128x64` logical canvas and
-maps it into the Cardputer display. Keep that shield in place when tuning older
-game loops; exposing the full `240x135` geometry can make imported games reset.
-Game frames render through an offscreen `M5Canvas` when available, then push into
-the centered viewport to keep animation smoother.
+## Game Library
+
+For player-facing notes on every title, see [GAME_CATALOG.md](GAME_CATALOG.md).
+
+| Category | Games |
+| --- | --- |
+| Arcade | Pong, Snake, Breakout, Flappy Pico, Dino Runner, Jetpack, Dodge Rain, Catch Star, Basket Catch, Balloon Pop, Cave Flyer, Tunnel Run, Wall Bounce, Gravity Flip, Platform Hop, Brick Drop |
+| Racing | Full Speed |
+| Skill | Lunar Module |
+| Motion | Lane Racer, Traffic Dodge, Ski Slalom, Boat Slalom, Rail Runner, Road Drift |
+| Shooter | Asteroids, Invaders, Missile Cmd, Turret Def, UFO Defender, Meteor Blast |
+| Puzzle | Lights Out, Minefield, Sokoban, Sliding, Memory, Simon, Mastermind, Number Guess, 2048, Flood Fill, Box Push, Laser Mirror |
+| Board | Tic Tac Toe, Connect Four, Nim, Dots Boxes |
+| Reflex | Reaction, Quick Draw, Stop Bar, Stack Tower, Lock Pick, Pixel Whack, Pulse Match |
+
+## Controls
+
+| Action | Keys |
+| --- | --- |
+| Move / navigate | Arrow keys, `WASD`, or `HJKL` |
+| Launch / action | `Enter`, `Space`, or Button A |
+| Toggle sound | `m` |
+| Exit a game | `Delete`, `q`, or `Tab` |
 
 ## Build
+
+Install Arduino CLI with the M5Stack ESP32 platform, then compile with the
+included profile:
 
 ```bash
 arduino-cli compile --profile adv /Users/cypher/Documents/GitHub/cardputer-games
@@ -31,7 +72,9 @@ arduino-cli compile --fqbn 'm5stack:esp32:m5stack_cardputer:FlashSize=8M,Partiti
 
 ## Flash
 
-Use the touch-first ESP32-S3 flow:
+For ESP32-S3 Cardputer hardware, use the touch-first bootloader flow. Start from
+the current runtime port, trigger 1200-baud reset, then upload to the newly
+enumerated bootloader port.
 
 ```bash
 arduino-cli board list
@@ -46,38 +89,47 @@ arduino-cli board list
 arduino-cli upload --profile adv -p /dev/cu.usbmodemYYYY /Users/cypher/Documents/GitHub/cardputer-games
 ```
 
-Monitor:
+Monitor after upload:
 
 ```bash
 arduino-cli monitor -p /dev/cu.usbmodemYYYY -c baudrate=115200
 ```
 
-## Controls
+## Project Layout
 
-- Move through the launcher: arrows, `WASD`, or `HJKL`
-- Launch or act: `Enter`, `Space`, or `BtnA`
-- Toggle sound: `m`
-- Exit a running game: `Delete`, `q`, or `Tab`
+```text
+cardputer-games.ino        Arduino setup, loop, input bridge, and boot splash
+sketch.yaml                Canonical Arduino CLI adv profile
+src/games/GameScreen.*     Launcher UI and game selection
+src/games/GamerEngine.*    Runtime, input queue, display wrapper, sound hooks
+src/games/GamerConfig.h    Cardputer display and input constants
+src/games/Games.*          Game registry and category catalog
+src/games/*Game*.cpp       Individual games and category implementations
+```
 
-The firmware shows a 4-second `Cypher-Gamer` intro splash by littlehakr, then
-boots directly into `CARDPUTER GAMES`. There is no home dashboard, app launcher,
-network setup, chat state, or persistent save state in v1.
-Sound uses short procedural Cardputer speaker tones only; there are no embedded
-audio assets or background music.
+## Design Notes
+
+`Cypher-Gamer` preserves the small `128x64` logical canvas even though the
+Cardputer display is larger. That keeps the imported game loops predictable and
+lets the firmware scale the play area cleanly into the physical display.
+
+The firmware is deliberately narrow: it is a games launcher, not a general
+Cardputer dashboard. Network setup, BLE tools, AI chat, web portals, persistent
+save systems, and other non-game modes are outside this release.
 
 ## Smoke Test
 
-After flashing:
+After flashing a release build:
 
-1. Confirm the device boots directly into the games launcher.
-2. Confirm the `Cypher-Gamer` splash is readable and lasts about 4 seconds.
-3. Scroll through all 52 games.
+1. Confirm the `Cypher-Gamer` splash is readable and lasts about 4 seconds.
+2. Confirm the launcher opens to `CARDPUTER GAMES`.
+3. Scroll through all 53 games.
 4. Launch `Snake` first.
 5. Launch one game from each category.
 6. Confirm movement and action keys work.
-7. Confirm launcher/game event sounds play at a conservative volume.
+7. Confirm sound cues play at a conservative volume.
 8. Confirm `m` toggles sound in the launcher and inside a game.
-9. Confirm `Delete`, `q`, or `Tab` exits back to the games launcher.
+9. Confirm `Delete`, `q`, or `Tab` exits back to the launcher.
 
 Useful serial breadcrumbs:
 

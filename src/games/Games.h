@@ -48,6 +48,7 @@ void runMemoryMatch(GamerEngine& engine);
 void runSimon(GamerEngine& engine);
 void runMastermind(GamerEngine& engine);
 void runNumberGuess(GamerEngine& engine);
+void runTwentyFortyEight(GamerEngine& engine);
 void runFloodFill(GamerEngine& engine);
 void runBoxPush(GamerEngine& engine);
 void runLaserMirror(GamerEngine& engine);

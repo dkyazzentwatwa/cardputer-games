@@ -59,6 +59,139 @@ bool boardResult(GamerEngine& engine, const char* title, int16_t score) {
   engine.ledPulse(CRGB::Green, 260);
   return resultScreen(engine, title, score);
 }
+
+void add2048Tile(uint8_t board[4][4]) {
+  uint8_t empty[16];
+  uint8_t emptyCount = 0;
+  for (uint8_t y = 0; y < 4; y++) {
+    for (uint8_t x = 0; x < 4; x++) {
+      if (board[y][x] == 0) {
+        empty[emptyCount++] = y * 4 + x;
+      }
+    }
+  }
+  if (emptyCount == 0) return;
+  const uint8_t spot = empty[random(0, emptyCount)];
+  board[spot / 4][spot % 4] = random(0, 10) == 0 ? 2 : 1;
+}
+
+bool slide2048Line(uint8_t line[4], uint16_t& score) {
+  uint8_t packed[4] = {0, 0, 0, 0};
+  uint8_t count = 0;
+  bool changed = false;
+  for (uint8_t i = 0; i < 4; i++) {
+    if (line[i] != 0) {
+      packed[count++] = line[i];
+    }
+  }
+  for (uint8_t i = 0; i < 3; i++) {
+    if (packed[i] != 0 && packed[i] == packed[i + 1]) {
+      packed[i]++;
+      score += static_cast<uint16_t>(1U << packed[i]);
+      for (uint8_t j = i + 1; j < 3; j++) {
+        packed[j] = packed[j + 1];
+      }
+      packed[3] = 0;
+    }
+  }
+  for (uint8_t i = 0; i < 4; i++) {
+    if (line[i] != packed[i]) {
+      changed = true;
+    }
+    line[i] = packed[i];
+  }
+  return changed;
+}
+
+bool move2048(uint8_t board[4][4], GamerDirection direction, uint16_t& score) {
+  bool changed = false;
+  for (uint8_t index = 0; index < 4; index++) {
+    uint8_t line[4];
+    for (uint8_t pos = 0; pos < 4; pos++) {
+      const uint8_t readPos = (direction == GAMER_DIR_RIGHT || direction == GAMER_DIR_DOWN) ? 3 - pos : pos;
+      const uint8_t x = (direction == GAMER_DIR_LEFT || direction == GAMER_DIR_RIGHT) ? readPos : index;
+      const uint8_t y = (direction == GAMER_DIR_UP || direction == GAMER_DIR_DOWN) ? readPos : index;
+      line[pos] = board[y][x];
+    }
+    const bool lineChanged = slide2048Line(line, score);
+    changed = changed || lineChanged;
+    for (uint8_t pos = 0; pos < 4; pos++) {
+      const uint8_t writePos = (direction == GAMER_DIR_RIGHT || direction == GAMER_DIR_DOWN) ? 3 - pos : pos;
+      const uint8_t x = (direction == GAMER_DIR_LEFT || direction == GAMER_DIR_RIGHT) ? writePos : index;
+      const uint8_t y = (direction == GAMER_DIR_UP || direction == GAMER_DIR_DOWN) ? writePos : index;
+      board[y][x] = line[pos];
+    }
+  }
+  return changed;
+}
+
+bool canMove2048(uint8_t board[4][4]) {
+  for (uint8_t y = 0; y < 4; y++) {
+    for (uint8_t x = 0; x < 4; x++) {
+      if (board[y][x] == 0) return true;
+      if (x < 3 && board[y][x] == board[y][x + 1]) return true;
+      if (y < 3 && board[y][x] == board[y + 1][x]) return true;
+    }
+  }
+  return false;
+}
+
+bool has2048Tile(uint8_t board[4][4]) {
+  for (uint8_t y = 0; y < 4; y++) {
+    for (uint8_t x = 0; x < 4; x++) {
+      if (board[y][x] >= 11) return true;
+    }
+  }
+  return false;
+}
+
+void tile2048Label(uint8_t value, char* label, size_t labelSize) {
+  if (value == 0) {
+    snprintf(label, labelSize, "");
+  } else if (value >= 10) {
+    snprintf(label, labelSize, "%uK", static_cast<unsigned>(1U << (value - 10)));
+  } else {
+    snprintf(label, labelSize, "%u", static_cast<unsigned>(1U << value));
+  }
+}
+
+void draw2048Board(GamerEngine& engine, uint8_t board[4][4], uint16_t score) {
+  engine.clear();
+  engine.screen().setTextSize(1);
+  engine.screen().setTextColor(GAMER_ACCENT, GAMER_BLACK);
+  engine.screen().setCursor(0, 0);
+  engine.screen().print("2048");
+  drawScore(engine, static_cast<int16_t>(min<uint16_t>(score, 32767)));
+
+  const int16_t cellW = 22;
+  const int16_t cellH = 13;
+  const int16_t ox = 20;
+  const int16_t oy = 10;
+  for (uint8_t y = 0; y < 4; y++) {
+    for (uint8_t x = 0; x < 4; x++) {
+      const int16_t px = ox + x * cellW;
+      const int16_t py = oy + y * cellH;
+      const uint8_t value = board[y][x];
+      const uint16_t border = value == 0 ? GAMER_DIM : GAMER_ACCENT;
+      if (value != 0) {
+        engine.screen().fillRect(px + 1, py + 1, cellW - 2, cellH - 2,
+                                 value >= 8 ? GAMER_INVERSE : GAMER_ACCENT);
+      }
+      engine.screen().drawRect(px, py, cellW - 1, cellH - 1, border);
+      if (value != 0) {
+        char label[5];
+        tile2048Label(value, label, sizeof(label));
+        const uint8_t len = strlen(label);
+        engine.screen().setTextColor(value >= 8 ? GAMER_BLACK : GAMER_BLACK,
+                                     value >= 8 ? GAMER_INVERSE : GAMER_ACCENT);
+        engine.screen().setCursor(px + max<int16_t>(2, (cellW - len * 6) / 2),
+                                  py + 3);
+        engine.screen().print(label);
+      }
+    }
+  }
+  engine.show();
+}
 }
 
 void runLightsOut(GamerEngine& engine) {
@@ -443,6 +576,55 @@ void runNumberGuess(GamerEngine& engine) {
       engine.centerText(text, 28, 2);
       engine.centerText(hint == 0 ? "SEL try" : (hint > 0 ? "HIGHER" : "LOWER"), 52);
       engine.show();
+      delay(20);
+    }
+  }
+}
+
+void runTwentyFortyEight(GamerEngine& engine) {
+  while (true) {
+    if (!runIntro(engine, "2048", "swipe arrows")) return;
+    uint8_t board[4][4] = {};
+    uint16_t score = 0;
+    bool won = false;
+    add2048Tile(board);
+    add2048Tile(board);
+
+    while (true) {
+      engine.tick();
+      if (engine.shouldExitGame()) { engine.waitForRelease(); return; }
+
+      GamerDirection direction = GAMER_DIR_UP;
+      bool hasMove = true;
+      if (engine.wasDirectionPressed(GAMER_DIR_UP)) direction = GAMER_DIR_UP;
+      else if (engine.wasDirectionPressed(GAMER_DIR_DOWN)) direction = GAMER_DIR_DOWN;
+      else if (engine.wasDirectionPressed(GAMER_DIR_LEFT)) direction = GAMER_DIR_LEFT;
+      else if (engine.wasDirectionPressed(GAMER_DIR_RIGHT)) direction = GAMER_DIR_RIGHT;
+      else hasMove = false;
+
+      if (hasMove) {
+        if (move2048(board, direction, score)) {
+          add2048Tile(board);
+          engine.ledPulse(CRGB::Aqua, 60);
+          engine.playSound(SOUND_UI_MOVE);
+        } else {
+          engine.playSound(SOUND_ERROR);
+        }
+      }
+
+      draw2048Board(engine, board, score);
+
+      if (!won && has2048Tile(board)) {
+        won = true;
+        if (!boardResult(engine, "2048!", min<uint16_t>(score, 32767))) return;
+        break;
+      }
+      if (!canMove2048(board)) {
+        engine.ledPulse(CRGB::Red, 220);
+        engine.playSound(SOUND_LOSE);
+        if (!resultScreen(engine, "NO MOVES", min<uint16_t>(score, 32767))) return;
+        break;
+      }
       delay(20);
     }
   }

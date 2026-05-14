@@ -39,6 +39,7 @@ const GameEntry GAME_LIBRARY[] = {
   {"Simon", "Puzzle", runSimon},
   {"Mastermind", "Puzzle", runMastermind},
   {"Number Guess", "Puzzle", runNumberGuess},
+  {"2048", "Puzzle", runTwentyFortyEight},
   {"Flood Fill", "Puzzle", runFloodFill},
   {"Box Push", "Puzzle", runBoxPush},
   {"Laser Mirror", "Puzzle", runLaserMirror},

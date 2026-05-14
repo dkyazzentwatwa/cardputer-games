@@ -13,6 +13,13 @@ enum GamerButton : uint8_t {
   BTN_SELECT = 2
 };
 
+enum GamerDirection : uint8_t {
+  GAMER_DIR_UP = 0,
+  GAMER_DIR_DOWN = 1,
+  GAMER_DIR_LEFT = 2,
+  GAMER_DIR_RIGHT = 3
+};
+
 struct ButtonRuntime {
   bool lastRawPressed = false;
   bool stablePressed = false;
@@ -98,6 +105,7 @@ public:
   bool wasPressed(GamerButton button) const;
   bool wasReleased(GamerButton button) const;
   bool wasLongPressed(GamerButton button) const;
+  bool wasDirectionPressed(GamerDirection direction) const;
   uint16_t releasedDuration(GamerButton button) const;
   bool shouldExitGame() const;
   void waitForRelease();
@@ -130,6 +138,7 @@ private:
   void clearEvents();
   void pollKeyboard();
   void updateButton(ButtonRuntime& button, bool rawPressed);
+  void updateDirection(GamerDirection direction, bool rawPressed);
   void drawFeedbackBorder();
   bool textHasAny(const String& text, const char* chars) const;
   uint16_t toColor565(const CRGB& color) const;
@@ -137,6 +146,8 @@ private:
   CardputerGameDisplay _display;
   GamerSound _sound;
   ButtonRuntime _buttons[3];
+  bool _directionHeld[4] = {false, false, false, false};
+  bool _directionPressed[4] = {false, false, false, false};
   ServiceCallback _serviceCallback = nullptr;
   bool _exitRequested = false;
   bool _muteKeyHeld = false;

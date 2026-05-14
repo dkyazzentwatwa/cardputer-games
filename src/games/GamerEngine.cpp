@@ -19,6 +19,7 @@ void CardputerGameDisplay::begin() {
   if (_useCanvas) {
     _canvas.setTextDatum(top_left);
     _canvas.setTextWrap(false);
+    _canvas.setPivot(SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f);
   }
   setTextSize(1);
   setTextColor(GAMER_WHITE, GAMER_BLACK);
@@ -34,8 +35,10 @@ void CardputerGameDisplay::clearPhysical() {
 
 void CardputerGameDisplay::pushFrame() {
   if (_useCanvas) {
-    _canvas.pushSprite(&M5Cardputer.Display, CARDPUTER_GAME_VIEWPORT_X,
-                       CARDPUTER_GAME_VIEWPORT_Y);
+    const float dstX = CARDPUTER_GAME_VIEWPORT_X + CARDPUTER_GAME_VIEWPORT_WIDTH / 2.0f;
+    const float dstY = CARDPUTER_GAME_VIEWPORT_Y + CARDPUTER_GAME_VIEWPORT_HEIGHT / 2.0f;
+    _canvas.pushRotateZoom(&M5Cardputer.Display, dstX, dstY, 0.0f, CARDPUTER_GAME_SCALE,
+                           CARDPUTER_GAME_SCALE);
   }
 }
 
@@ -219,6 +222,8 @@ void GamerEngine::begin(ServiceCallback serviceCallback) {
 
 void GamerEngine::resetForLaunch() {
   memset(_buttons, 0, sizeof(_buttons));
+  memset(_directionHeld, 0, sizeof(_directionHeld));
+  memset(_directionPressed, 0, sizeof(_directionPressed));
   _exitRequested = false;
   _feedbackUntil = 0;
   _display.clearPhysical();
@@ -230,6 +235,7 @@ void GamerEngine::clearEvents() {
     _buttons[i].releaseEvent = false;
     _buttons[i].longEvent = false;
   }
+  memset(_directionPressed, 0, sizeof(_directionPressed));
 }
 
 void GamerEngine::tick() {
@@ -262,6 +268,10 @@ bool GamerEngine::wasReleased(GamerButton button) const {
 
 bool GamerEngine::wasLongPressed(GamerButton button) const {
   return _buttons[button].longEvent;
+}
+
+bool GamerEngine::wasDirectionPressed(GamerDirection direction) const {
+  return _directionPressed[direction];
 }
 
 uint16_t GamerEngine::releasedDuration(GamerButton button) const {
@@ -466,6 +476,8 @@ bool GamerEngine::soundMuted() const {
 }
 
 void GamerEngine::pollKeyboard() {
+  bool rawUp = false;
+  bool rawDown = false;
   bool rawLeft = false;
   bool rawRight = false;
   bool rawSelect = M5Cardputer.BtnA.isPressed();
@@ -478,12 +490,16 @@ void GamerEngine::pollKeyboard() {
     rawExit = keys.del || keys.tab;
 
     for (auto c : keys.word) {
-      if (c == 'a' || c == 'A' || c == 'h' || c == 'H' || c == 'k' || c == 'K' ||
-          c == 'w' || c == 'W') {
+      if (c == 'w' || c == 'W' || c == 'k' || c == 'K') {
+        rawUp = true;
+      }
+      if (c == 's' || c == 'S' || c == 'j' || c == 'J') {
+        rawDown = true;
+      }
+      if (c == 'a' || c == 'A' || c == 'h' || c == 'H') {
         rawLeft = true;
       }
-      if (c == 'd' || c == 'D' || c == 'j' || c == 'J' || c == 'l' || c == 'L' ||
-          c == 's' || c == 'S') {
+      if (c == 'd' || c == 'D' || c == 'l' || c == 'L') {
         rawRight = true;
       }
       if (c == 'q' || c == 'Q') {
@@ -497,13 +513,17 @@ void GamerEngine::pollKeyboard() {
     for (const auto& key : M5Cardputer.Keyboard.keyList()) {
       if (key.y == 3 && key.x == 10) rawLeft = true;
       if (key.y == 3 && key.x == 12) rawRight = true;
-      if (key.y == 2 && key.x == 11) rawLeft = true;
-      if (key.y == 3 && key.x == 11) rawRight = true;
+      if (key.y == 2 && key.x == 11) rawUp = true;
+      if (key.y == 3 && key.x == 11) rawDown = true;
     }
   }
 
-  updateButton(_buttons[BTN_LEFT], rawLeft);
-  updateButton(_buttons[BTN_RIGHT], rawRight);
+  updateDirection(GAMER_DIR_UP, rawUp);
+  updateDirection(GAMER_DIR_DOWN, rawDown);
+  updateDirection(GAMER_DIR_LEFT, rawLeft);
+  updateDirection(GAMER_DIR_RIGHT, rawRight);
+  updateButton(_buttons[BTN_LEFT], rawLeft || rawUp);
+  updateButton(_buttons[BTN_RIGHT], rawRight || rawDown);
   updateButton(_buttons[BTN_SELECT], rawSelect);
   if (mutePressed && !_muteKeyHeld) {
     toggleSoundMuted();
@@ -512,6 +532,14 @@ void GamerEngine::pollKeyboard() {
   if (rawExit) {
     _exitRequested = true;
   }
+}
+
+void GamerEngine::updateDirection(GamerDirection direction, bool rawPressed) {
+  const uint8_t index = static_cast<uint8_t>(direction);
+  if (rawPressed && !_directionHeld[index]) {
+    _directionPressed[index] = true;
+  }
+  _directionHeld[index] = rawPressed;
 }
 
 void GamerEngine::updateButton(ButtonRuntime& button, bool rawPressed) {
