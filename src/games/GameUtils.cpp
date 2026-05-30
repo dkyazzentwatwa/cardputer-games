@@ -287,6 +287,12 @@ bool selectTap(GamerEngine& engine) {
   return tapped;
 }
 
+bool checkExit(GamerEngine& engine) {
+  if (!engine.shouldExitGame()) return false;
+  engine.waitForRelease();
+  return true;
+}
+
 bool runIntro(GamerEngine& engine, const char* title, const char* help) {
   return engine.waitForSelectOrExit(title, help, "SEL start");
 }
@@ -329,6 +335,14 @@ void drawScore(GamerEngine& engine, int16_t value) {
   char scoreText[10];
   snprintf(scoreText, sizeof(scoreText), "%d", value);
   engine.rightText(scoreText);
+}
+
+void drawStat(GamerEngine& engine, const char* label, int16_t value) {
+  engine.screen().setTextSize(engine.textScale());
+  engine.screen().setTextColor(GAMER_WHITE, GAMER_BLACK);
+  engine.screen().setCursor(0, 0);
+  engine.screen().print(label);
+  engine.screen().print(value);
 }
 
 int16_t gameX(GamerEngine& engine, int16_t oledX) {
