@@ -4,12 +4,30 @@ This catalog lists the 53 games currently registered in `src/games/Games.cpp`.
 All games run inside the Cardputer launcher, use the shared `128x64` game
 canvas, and support the common exit keys: `Delete`, `q`, or `Tab`.
 
+## What's New: Deeper Games
+
+Every game has been deepened beyond its original demo form:
+
+- **Difficulty modes** — most games open with an `EASY / NORMAL / HARD` picker
+  that scales speed, spawn rate, AI strength, or grid size.
+- **Lives & progression** — action games give you lives instead of an instant
+  game over, plus a level-up feel as the speed and difficulty curve climbs.
+- **Persistent high scores** — best scores, fastest times, and longest streaks
+  are saved to the microSD card (`/cpgames.hi`) and shown as a `HI` tag, with a
+  `NEW BEST!` flash when you beat one. With no card inserted, games play exactly
+  the same but simply don't record bests.
+- **Smarter opponents** — board games add real AI tiers, up to a perfect
+  minimax player on `HARD`.
+- **Juice** — particle bursts, screen shake, richer sound cues, and combo
+  multipliers reward skilful play.
+
 ## Shared Controls
 
 | Action | Keys |
 | --- | --- |
 | Move / navigate | Arrow keys, `WASD`, or `HJKL` |
 | Action / select | `Enter`, `Space`, or Button A |
+| Secondary (undo / flag / hint, where shown) | Long-press `Enter` / Button A |
 | Mute toggle | `m` |
 | Exit game | `Delete`, `q`, or `Tab` |
 

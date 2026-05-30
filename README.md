@@ -20,6 +20,11 @@ On boot, the device shows a 4-second `Cypher-Gamer` intro splash, then opens the
 - Keyboard-first controls with arrows, `WASD`, `HJKL`, `Enter`, `Space`, and
   Button A support.
 - Short procedural sound cues with an in-launcher mute toggle.
+- Every game deepened with `EASY/NORMAL/HARD` difficulty, lives and difficulty
+  curves, combo/power-up mechanics, smarter board-game AI (up to minimax), and
+  juice (particles, screen shake, richer cues).
+- Persistent high scores saved to the microSD card (`/cpgames.hi`); games still
+  play normally with no card inserted.
 
 ## Hardware
 
