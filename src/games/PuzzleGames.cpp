@@ -193,7 +193,7 @@ void runLightsOut(GamerEngine& engine) {
     uint16_t moves = 0;
     while (true) {
       engine.tick();
-      if (engine.shouldExitGame()) { engine.waitForRelease(); return; }
+      if (checkExit(engine)) return;
       cursor = gameCursorStep(engine, cursor, 9);
       if (selectTap(engine)) {
         int8_t x = cursor % 3;
@@ -237,7 +237,7 @@ void runMinefield(GamerEngine& engine) {
     uint8_t safe = 0;
     while (true) {
       engine.tick();
-      if (engine.shouldExitGame()) { engine.waitForRelease(); return; }
+      if (checkExit(engine)) return;
       cursor = gameCursorStep(engine, cursor, 16);
       if (selectTap(engine) && !open[cursor]) {
         if (mine[cursor]) {
@@ -279,7 +279,7 @@ void runSokobanMicro(GamerEngine& engine) {
     uint16_t moves = 0;
     while (true) {
       engine.tick();
-      if (engine.shouldExitGame()) { engine.waitForRelease(); return; }
+      if (checkExit(engine)) return;
       if (engine.wasPressed(BTN_LEFT)) {
         face = (face + 3) % 4;
         engine.playSound(SOUND_UI_MOVE);
@@ -325,7 +325,7 @@ void runSlidingPuzzle(GamerEngine& engine) {
     uint16_t moves = 0;
     while (true) {
       engine.tick();
-      if (engine.shouldExitGame()) { engine.waitForRelease(); return; }
+      if (checkExit(engine)) return;
       cursor = gameCursorStep(engine, cursor, 9);
       if (selectTap(engine)) {
         uint8_t blank = 0;
@@ -378,7 +378,7 @@ void runMemoryMatch(GamerEngine& engine) {
     uint16_t moves = 0;
     while (true) {
       engine.tick();
-      if (engine.shouldExitGame()) { engine.waitForRelease(); return; }
+      if (checkExit(engine)) return;
       cursor = gameCursorStep(engine, cursor, 8);
       if (selectTap(engine) && !matched[cursor]) {
         shown[cursor] = true;
@@ -446,7 +446,7 @@ void runSimon(GamerEngine& engine) {
         uint8_t input = 9;
         while (input == 9) {
           engine.tick();
-          if (engine.shouldExitGame()) { engine.waitForRelease(); return; }
+          if (checkExit(engine)) return;
           if (engine.wasPressed(BTN_LEFT)) {
             input = 0;
             engine.playSound(SOUND_SIMON_LEFT);
@@ -487,7 +487,7 @@ void runMastermind(GamerEngine& engine) {
     uint8_t lastExact = 0;
     while (true) {
       engine.tick();
-      if (engine.shouldExitGame()) { engine.waitForRelease(); return; }
+      if (checkExit(engine)) return;
       if (engine.wasPressed(BTN_LEFT)) {
         guess[pos] = guess[pos] == 0 ? 2 : guess[pos] - 1;
         engine.playSound(SOUND_UI_MOVE);
@@ -541,7 +541,7 @@ void runNumberGuess(GamerEngine& engine) {
     int8_t hint = 0;
     while (true) {
       engine.tick();
-      if (engine.shouldExitGame()) { engine.waitForRelease(); return; }
+      if (checkExit(engine)) return;
       if (engine.wasPressed(BTN_LEFT) && guess > 0) {
         guess--;
         engine.playSound(SOUND_UI_MOVE);
@@ -582,7 +582,7 @@ void runTwentyFortyEight(GamerEngine& engine) {
 
     while (true) {
       engine.tick();
-      if (engine.shouldExitGame()) { engine.waitForRelease(); return; }
+      if (checkExit(engine)) return;
 
       GamerDirection direction = GAMER_DIR_UP;
       bool hasMove = true;
@@ -629,7 +629,7 @@ void runFloodFill(GamerEngine& engine) {
     uint8_t moves = 0;
     while (true) {
       engine.tick();
-      if (engine.shouldExitGame()) { engine.waitForRelease(); return; }
+      if (checkExit(engine)) return;
       if (engine.wasPressed(BTN_LEFT)) {
         pick = pick == 0 ? 2 : pick - 1;
         engine.playSound(SOUND_UI_MOVE);
@@ -669,7 +669,7 @@ void runLaserMirror(GamerEngine& engine) {
     uint8_t moves = 0;
     while (true) {
       engine.tick();
-      if (engine.shouldExitGame()) { engine.waitForRelease(); return; }
+      if (checkExit(engine)) return;
       cursor = gameCursorStep(engine, cursor, 9);
       if (selectTap(engine)) {
         mirror[cursor] = !mirror[cursor];

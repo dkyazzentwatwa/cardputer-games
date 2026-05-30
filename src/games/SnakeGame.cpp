@@ -70,7 +70,7 @@ void drawSnake(GamerEngine& engine, const Cell snake[], uint8_t length, const Ce
 
 void runSnake(GamerEngine& engine) {
   while (true) {
-    if (!engine.waitForSelectOrExit("SNAKE", "L/R turn", "SEL start")) return;
+    if (!runIntro(engine, "SNAKE", "L/R turn")) return;
 
     Cell snake[MAX_SNAKE];
     uint8_t length = 1;
@@ -86,10 +86,7 @@ void runSnake(GamerEngine& engine) {
 
     while (alive) {
       engine.tick();
-      if (engine.shouldExitGame()) {
-        engine.waitForRelease();
-        return;
-      }
+      if (checkExit(engine)) return;
       if (engine.wasPressed(BTN_LEFT)) {
         direction = turnLeft(direction);
         engine.playSound(SOUND_UI_MOVE);

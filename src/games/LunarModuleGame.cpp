@@ -32,10 +32,7 @@ void runLunarModule(GamerEngine& engine) {
 
     while (true) {
       engine.tick();
-      if (engine.shouldExitGame()) {
-        engine.waitForRelease();
-        return;
-      }
+      if (checkExit(engine)) return;
 
       const uint32_t now = millis();
       if (!frameDue(nextFrame, LUNAR_FRAME_MS)) {
@@ -76,10 +73,7 @@ void runLunarModule(GamerEngine& engine) {
       if (thrustFlash && static_cast<int32_t>(now - thrustUntil) >= 0) thrustFlash = false;
 
       engine.clear();
-      engine.screen().setTextSize(engine.textScale());
-      engine.screen().setCursor(0, 0);
-      engine.screen().print("F:");
-      engine.screen().print(fuel);
+      drawStat(engine, "F:", fuel);
       char velocity[8];
       snprintf(velocity, sizeof(velocity), "V:%d", vy);
       engine.rightText(velocity);

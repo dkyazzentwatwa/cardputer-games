@@ -29,7 +29,7 @@ void drawBike(GamerEngine& engine, int16_t x, int16_t y) {
 
 void runFullSpeed(GamerEngine& engine) {
   while (true) {
-    if (!engine.waitForSelectOrExit("FULL SPEED", "L/R steer", "SEL start")) return;
+    if (!runIntro(engine, "FULL SPEED", "L/R steer")) return;
 
     int16_t playerX = 0;
     int16_t roadShift = 0;
@@ -42,10 +42,7 @@ void runFullSpeed(GamerEngine& engine) {
 
     while (true) {
       engine.tick();
-      if (engine.shouldExitGame()) {
-        engine.waitForRelease();
-        return;
-      }
+      if (checkExit(engine)) return;
 
       if (!frameDue(nextFrame, FULLSPEED_FRAME_MS)) {
         delay(2);
@@ -79,10 +76,7 @@ void runFullSpeed(GamerEngine& engine) {
       }
 
       engine.clear();
-      engine.screen().setTextSize(engine.textScale());
-      engine.screen().setCursor(0, 0);
-      engine.screen().print("S:");
-      engine.screen().print(score);
+      drawStat(engine, "S:", score);
       char speedText[8];
       snprintf(speedText, sizeof(speedText), "%uk", static_cast<unsigned>((score + 1) * 5));
       engine.rightText(speedText);

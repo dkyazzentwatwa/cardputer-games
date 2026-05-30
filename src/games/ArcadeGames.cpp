@@ -35,10 +35,7 @@ void runJumpRunner(GamerEngine& engine, const char* title, bool flipMode) {
 
     while (true) {
       engine.tick();
-      if (engine.shouldExitGame()) {
-        engine.waitForRelease();
-        return;
-      }
+      if (checkExit(engine)) return;
       if (selectTap(engine)) {
         if (flipMode) {
           gravity = -gravity;
@@ -100,10 +97,7 @@ void runFlyer(GamerEngine& engine, const char* title, bool useGapWall, bool sele
 
     while (true) {
       engine.tick();
-      if (engine.shouldExitGame()) {
-        engine.waitForRelease();
-        return;
-      }
+      if (checkExit(engine)) return;
       if ((selectHeld && engine.isHeld(BTN_SELECT)) || (!selectHeld && selectTap(engine))) {
         vy -= selectHeld ? 1 : 7;
         engine.ledPulse(CRGB::Green, 35);
@@ -171,10 +165,7 @@ void runCatchOrDodge(GamerEngine& engine, const char* title, bool catchMode, uin
 
     while (true) {
       engine.tick();
-      if (engine.shouldExitGame()) {
-        engine.waitForRelease();
-        return;
-      }
+      if (checkExit(engine)) return;
       if (!frameDue(nextFrame, 42)) {
         delay(2);
         continue;
@@ -245,10 +236,7 @@ void runLaneGame(GamerEngine& engine, const char* title, bool gates, bool river)
 
     while (true) {
       engine.tick();
-      if (engine.shouldExitGame()) {
-        engine.waitForRelease();
-        return;
-      }
+      if (checkExit(engine)) return;
       if (engine.wasPressed(BTN_LEFT) && lane > 0) {
         lane--;
         engine.playSound(SOUND_UI_MOVE);
@@ -325,10 +313,7 @@ void runBreakoutInternal(GamerEngine& engine) {
 
     while (true) {
       engine.tick();
-      if (engine.shouldExitGame()) {
-        engine.waitForRelease();
-        return;
-      }
+      if (checkExit(engine)) return;
       if (!frameDue(nextFrame, 28)) {
         delay(2);
         continue;

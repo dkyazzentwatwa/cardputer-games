@@ -13,7 +13,7 @@ void runPong(GamerEngine& engine) {
   const int16_t paddleSpeed = GAMER_DISPLAY_IS_SH8601 ? 10 : 4;
 
   while (true) {
-    if (!engine.waitForSelectOrExit("PONG", "L/R move paddle", "SEL start")) return;
+    if (!runIntro(engine, "PONG", "L/R move paddle")) return;
 
     int16_t ballX = engine.width() / 2;
     int16_t ballY = engine.height() / 4;
@@ -25,10 +25,7 @@ void runPong(GamerEngine& engine) {
 
     while (true) {
       engine.tick();
-      if (engine.shouldExitGame()) {
-        engine.waitForRelease();
-        return;
-      }
+      if (checkExit(engine)) return;
 
       if (!frameDue(nextFrame, PONG_FRAME_MS)) {
         delay(2);

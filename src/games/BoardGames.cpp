@@ -72,7 +72,7 @@ void runWaitGame(GamerEngine& engine, const char* title, bool allowLeftRight) {
     bool early = false;
     while (millis() < readyAt) {
       engine.tick();
-      if (engine.shouldExitGame()) { engine.waitForRelease(); return; }
+      if (checkExit(engine)) return;
       if (selectTap(engine) || (allowLeftRight && (engine.wasPressed(BTN_LEFT) || engine.wasPressed(BTN_RIGHT)))) {
         early = true;
         engine.playSound(SOUND_ERROR);
@@ -91,7 +91,7 @@ void runWaitGame(GamerEngine& engine, const char* title, bool allowLeftRight) {
     engine.playSound(SOUND_TIMER_GO);
     while (true) {
       engine.tick();
-      if (engine.shouldExitGame()) { engine.waitForRelease(); return; }
+      if (checkExit(engine)) return;
       engine.clear();
       engine.centerText("GO", gameY(engine, 24), GAMER_DISPLAY_IS_SH8601 ? 5 : 2);
       engine.show();
@@ -116,7 +116,7 @@ void runTicTacToe(GamerEngine& engine) {
     uint8_t cursor = 0;
     while (true) {
       engine.tick();
-      if (engine.shouldExitGame()) { engine.waitForRelease(); return; }
+      if (checkExit(engine)) return;
       cursor = gameCursorStep(engine, cursor, 9);
       if (selectTap(engine) && board[cursor] == 0) {
         board[cursor] = 1;
@@ -152,7 +152,7 @@ void runConnectFour(GamerEngine& engine) {
     uint8_t col = 0;
     while (true) {
       engine.tick();
-      if (engine.shouldExitGame()) { engine.waitForRelease(); return; }
+      if (checkExit(engine)) return;
       col = gameCursorStep(engine, col, 4);
       if (selectTap(engine) && dropDisc(board, col, 1)) {
         engine.playSound(SOUND_SCORE);
@@ -192,7 +192,7 @@ void runNim(GamerEngine& engine) {
     uint8_t take = 1;
     while (pile > 0) {
       engine.tick();
-      if (engine.shouldExitGame()) { engine.waitForRelease(); return; }
+      if (checkExit(engine)) return;
       if (engine.wasPressed(BTN_LEFT) && take > 1) {
         take--;
         engine.playSound(SOUND_UI_MOVE);
@@ -243,7 +243,7 @@ void runDotsBoxesLite(GamerEngine& engine) {
     uint8_t claimed = 0;
     while (claimed < 12) {
       engine.tick();
-      if (engine.shouldExitGame()) { engine.waitForRelease(); return; }
+      if (checkExit(engine)) return;
       cursor = gameCursorStep(engine, cursor, 12);
       if (selectTap(engine) && !edge[cursor]) {
         edge[cursor] = true;
@@ -294,7 +294,7 @@ void runStopTheBar(GamerEngine& engine) {
     uint32_t nextFrame = 0;
     while (true) {
       engine.tick();
-      if (engine.shouldExitGame()) { engine.waitForRelease(); return; }
+      if (checkExit(engine)) return;
       if (selectTap(engine)) {
         int16_t diff = abs(pos - 63);
         score = 50 - diff;
@@ -323,7 +323,7 @@ void runStackTower(GamerEngine& engine) {
     uint32_t nextFrame = 0;
     while (true) {
       engine.tick();
-      if (engine.shouldExitGame()) { engine.waitForRelease(); return; }
+      if (checkExit(engine)) return;
       if (selectTap(engine)) {
         int16_t left = x > baseX ? x : baseX;
         int16_t right = (x + width) < (baseX + width) ? (x + width) : (baseX + width);
@@ -368,7 +368,7 @@ void runLockPick(GamerEngine& engine) {
     uint32_t nextFrame = 0;
     while (pins < 5) {
       engine.tick();
-      if (engine.shouldExitGame()) { engine.waitForRelease(); return; }
+      if (checkExit(engine)) return;
       if (selectTap(engine)) {
         if (abs(mark - target) <= 5) {
           pins++;
@@ -399,7 +399,7 @@ void runPixelWhack(GamerEngine& engine) {
     uint8_t score = 0;
     while (score < 15) {
       engine.tick();
-      if (engine.shouldExitGame()) { engine.waitForRelease(); return; }
+      if (checkExit(engine)) return;
       cursor = gameCursorStep(engine, cursor, 12);
       if (selectTap(engine)) {
         if (cursor == target) {
@@ -440,7 +440,7 @@ void runPulseMatch(GamerEngine& engine) {
     uint32_t nextFrame = 0;
     while (score < 10) {
       engine.tick();
-      if (engine.shouldExitGame()) { engine.waitForRelease(); return; }
+      if (checkExit(engine)) return;
       if (selectTap(engine)) {
         if (abs(pos - target) < 7) {
           score++;

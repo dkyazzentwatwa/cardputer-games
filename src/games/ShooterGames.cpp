@@ -41,10 +41,7 @@ void runTurretPattern(GamerEngine& engine, const char* title, uint8_t style, boo
 
     while (true) {
       engine.tick();
-      if (engine.shouldExitGame()) {
-        engine.waitForRelease();
-        return;
-      }
+      if (checkExit(engine)) return;
       turretX += heldAxis(engine) * 4;
       turretX = constrain(turretX, 0, 120);
       if (selectTap(engine) && !shot.active) {
@@ -95,10 +92,7 @@ void runTurretPattern(GamerEngine& engine, const char* title, uint8_t style, boo
                                                 gameSize(engine, 2), gameSize(engine, 7),
                                                 GAMER_WHITE);
       for (uint8_t i = 0; i < count; i++) drawTarget(engine, targetX[i], targetY[i], style);
-      engine.screen().setTextSize(engine.textScale());
-      engine.screen().setCursor(0, 0);
-      engine.screen().print("L:");
-      engine.screen().print(lives);
+      drawStat(engine, "L:", lives);
       drawScore(engine, score);
       engine.show();
 
@@ -127,10 +121,7 @@ void runMissilePattern(GamerEngine& engine, const char* title, bool wideBlast) {
 
     while (true) {
       engine.tick();
-      if (engine.shouldExitGame()) {
-        engine.waitForRelease();
-        return;
-      }
+      if (checkExit(engine)) return;
       siteX += heldAxis(engine) * 4;
       siteX = constrain(siteX, 0, 124);
       if (selectTap(engine) && blastLife == 0) {
@@ -172,10 +163,7 @@ void runMissilePattern(GamerEngine& engine, const char* title, bool wideBlast) {
                                gameSize(engine, 8), GAMER_ACCENT);
       if (blastLife > 0) engine.screen().drawCircle(gameX(engine, blastX), gameY(engine, blastY),
                                                     gameSize(engine, radius), GAMER_ACCENT);
-      engine.screen().setTextSize(engine.textScale());
-      engine.screen().setCursor(0, 0);
-      engine.screen().print("B:");
-      engine.screen().print(base);
+      drawStat(engine, "B:", base);
       drawScore(engine, score);
       engine.show();
 
