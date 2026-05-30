@@ -22,17 +22,6 @@ bool selectLong(GamerEngine& engine) {
   return false;
 }
 
-void drawCellValue(GamerEngine& engine, int16_t x, int16_t y, uint8_t value, uint8_t size) {
-  if (value == 0) engine.screen().drawRect(x, y, size - 1, size - 1, GAMER_WHITE);
-  else if (value == 1) engine.screen().fillRect(x + 2, y + 2, size - 4, size - 4, GAMER_WHITE);
-  else if (value == 2) {
-    engine.screen().drawLine(x + 2, y + 2, x + size - 4, y + size - 4, GAMER_WHITE);
-    engine.screen().drawLine(x + size - 4, y + 2, x + 2, y + size - 4, GAMER_WHITE);
-  } else {
-    engine.screen().fillCircle(x + size / 2, y + size / 2, size / 3, GAMER_WHITE);
-  }
-}
-
 int8_t cursorStep(GamerEngine& engine, int8_t current, int8_t count) {
   const int8_t previous = current;
   if (engine.wasPressed(BTN_LEFT)) current = current == 0 ? count - 1 : current - 1;
@@ -1188,7 +1177,10 @@ void runLaserMirror(GamerEngine& engine) {
     { 1,2,2,2,0,  2,2,1,2,2,  0,2,2,2,1 },
     { 2,1,2,0,2,  1,2,2,2,1,  2,0,2,1,2 }
   };
-  static const uint8_t goalRow[3] = {1, 0, 2};   // which right-edge row must be hit
+  // Laser enters at left of entryRow; must exit right edge at goalRow.
+  // Entry != goal so every level requires at least one mirror.
+  static const uint8_t entryRow[3] = {1, 1, 1};
+  static const uint8_t goalRow[3] = {0, 2, 0};   // which right-edge row must be hit
   static const uint8_t pars[3] = {2, 4, 6};
 
   while (true) {
@@ -1202,6 +1194,7 @@ void runLaserMirror(GamerEngine& engine) {
       uint8_t mir[15];
       for (uint8_t i = 0; i < GN; i++) mir[i] = init[lvl][i];
       uint8_t cursor = 0, moves = 0;
+      const uint8_t er = entryRow[lvl];
       const uint8_t gr = goalRow[lvl];
 
       while (true) {
@@ -1213,9 +1206,9 @@ void runLaserMirror(GamerEngine& engine) {
           moves++;
         }
 
-        // trace laser: enter at left of row gr going right.
+        // trace laser: enter at left of entry row going right.
         // store path cells visited for drawing.
-        int8_t px = -1, py = gr, dx = 1, dy = 0;
+        int8_t px = -1, py = er, dx = 1, dy = 0;
         uint8_t pathx[40], pathy[40]; uint8_t pn = 0;
         bool hit = false;
         for (uint8_t step = 0; step < 40; step++) {
@@ -1239,7 +1232,7 @@ void runLaserMirror(GamerEngine& engine) {
         drawBestTag(engine, best, 56);
         const int16_t cell = 16, ox = 64 - (GW * cell) / 2, oy = 12;
         // draw path first (under mirrors)
-        int16_t lx = ox - 4, ly = oy + gr * cell + cell / 2;
+        int16_t lx = ox - 4, ly = oy + er * cell + cell / 2;
         for (uint8_t i = 0; i < pn; i++) {
           int16_t cx = ox + pathx[i] * cell + cell / 2;
           int16_t cy = oy + pathy[i] * cell + cell / 2;
@@ -1258,7 +1251,7 @@ void runLaserMirror(GamerEngine& engine) {
         }
         // source & goal markers
         engine.screen().setTextColor(GAMER_INVERSE, GAMER_BLACK);
-        engine.screen().setCursor(ox - 9, oy + gr * cell + 4); engine.screen().print(">");
+        engine.screen().setCursor(ox - 9, oy + er * cell + 4); engine.screen().print(">");
         engine.screen().setCursor(ox + GW * cell + 2, oy + gr * cell + 4); engine.screen().print("X");
         engine.show();
 

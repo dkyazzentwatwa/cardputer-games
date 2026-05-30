@@ -63,7 +63,7 @@ void runFlyer(GamerEngine& engine, const char* title, const char* key, FlyerKind
 
     int16_t y = 30, vy = 0;
     int16_t wallX = 126;
-    int16_t gapY = 22;
+    int16_t gapY = 22, gapTarget = 22;
     int16_t gap = baseGap[diff];
     uint16_t score = 0, combo = 0;
     uint8_t lives = 3;
@@ -100,14 +100,21 @@ void runFlyer(GamerEngine& engine, const char* title, const char* key, FlyerKind
       y += vy;
       wallX -= baseSpeed[diff] + score / 24;
 
-      // Tunnel: gap narrows steadily; occasional center obstacle.
-      if (kind == FLY_TUNNEL) gap = baseGap[diff] - (int16_t)(score / 6);
-      if (gap < 12) gap = 12;
+      // Tunnel: gap narrows steadily; corridor center eases toward a target.
+      if (kind == FLY_TUNNEL) {
+        gap = baseGap[diff] - (int16_t)(score / 6);
+        if (gap < 12) gap = 12;
+        if (gapY < gapTarget) gapY++;
+        else if (gapY > gapTarget) gapY--;
+      }
 
       if (wallX < -8) {
         wallX = 128 + random(0, 10);
         if (kind == FLY_TUNNEL) {
-          gapY = random(16, 40);
+          int16_t hi = 54 - gap;          // keep corridor on-screen
+          int16_t lo = 8;
+          if (hi <= lo) hi = lo + 1;
+          gapTarget = random(lo, hi);
           centerObst = (score > 4) && (random(0, 3) == 0);
         } else {
           gapY = random(10, 44 - (gap - 18 > 0 ? gap - 18 : 0));
@@ -154,11 +161,9 @@ void runFlyer(GamerEngine& engine, const char* title, const char* key, FlyerKind
       if (gapWall) {
         if (wallX < 22 && wallX + 8 > 16 && (y < gapY || y + 6 > gapY + gap)) hit = true;
       } else {
-        // Tunnel: top & bottom walls travel with wallX-independent lines.
+        // Tunnel: stay inside the corridor; gapY eases toward the new target.
         int16_t topY = gapY, botY = gapY + gap;
-        if (y < topY || y + 6 > botY) {
-          if (wallX < 40) hit = true;  // only fail near the player column band
-        }
+        if (y < topY || y + 6 > botY) hit = true;
         if (centerObst && rectsOverlap(16, y, 6, 6, wallX, gapY + gap / 2 - 3, 6, 6))
           hit = true;
       }
@@ -256,7 +261,6 @@ void runJumpRunner(GamerEngine& engine, const char* title, const char* key, Jump
     uint16_t score = 0;
     uint8_t lives = 3;
     uint8_t shake = 0, lastTier = 0;
-    uint8_t flipCount = 0;        // for gravity double-flip bonus
     uint32_t lastFlip = 0;
     uint8_t duckTimer = 0;        // frames remaining ducked
     uint32_t nextFrame = 0;
@@ -768,9 +772,10 @@ void runLaneGame(GamerEngine& engine, const char* title, const char* key, LaneKi
       bool crash = false;
       bool centeredBonus = false;
       if (gates) {
-        // Must be in the OPEN lane (badLane = closed gate / missing gate).
+        // badLane marks the OPEN gate (gap); you must pass through it.
         if (y > 48 && y < 62 && lane != badLane) crash = true;
-        if (kind == LANE_SKI && y > 48 && y < 62 && lane == badLane && abs(laneOffset) < 4)
+        // Ski: clearing the gate while it sits in the center lane is a bonus.
+        if (kind == LANE_SKI && y > 48 && y < 62 && lane == badLane && badLane == 1)
           centeredBonus = true;
       } else {
         if (y > 46 && y < 62 && lane == badLane) crash = true;
