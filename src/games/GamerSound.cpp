@@ -28,6 +28,9 @@ const GamerSound::Note kSimonRight[] = {{880, 150, 0}};
 const GamerSound::Note kSimonSelect[] = {{1175, 150, 0}};
 const GamerSound::Note kMuteOn[] = {{330, 25, 5}, {220, 35, 0}};
 const GamerSound::Note kMuteOff[] = {{220, 25, 5}, {440, 35, 0}};
+const GamerSound::Note kPowerup[] = {{1047, 26, 4}, {1319, 26, 4}, {1568, 38, 0}};
+const GamerSound::Note kLevelup[] = {{784, 30, 6}, {988, 30, 6}, {1319, 30, 6}, {1976, 60, 0}};
+const GamerSound::Note kCombo[] = {{1319, 18, 4}, {1760, 26, 0}};
 
 const GamerSound::Cue kCues[] = {
     {kUiMove, 1, kUiChannel},
@@ -50,6 +53,9 @@ const GamerSound::Cue kCues[] = {
     {kSimonSelect, 1, kActionChannel},
     {kMuteOn, 2, kUiChannel},
     {kMuteOff, 2, kUiChannel},
+    {kPowerup, 3, kActionChannel},
+    {kLevelup, 4, kResultChannel},
+    {kCombo, 2, kActionChannel},
 };
 }
 

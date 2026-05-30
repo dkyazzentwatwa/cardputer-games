@@ -22,7 +22,10 @@ enum GameSoundCue : uint8_t {
   SOUND_SIMON_RIGHT,
   SOUND_SIMON_SELECT,
   SOUND_MUTE_ON,
-  SOUND_MUTE_OFF
+  SOUND_MUTE_OFF,
+  SOUND_POWERUP,
+  SOUND_LEVELUP,
+  SOUND_COMBO
 };
 
 class GamerSound {

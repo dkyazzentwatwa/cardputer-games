@@ -66,8 +66,12 @@ arduino-cli monitor -p /dev/cu.usbmodemYYYY -c baudrate=115200
 - Keep game rendering routed through the `GamerEngine` / `CardputerGameDisplay`
   wrapper so the offscreen `M5Canvas` path can reduce frame flicker.
 - Keep the firmware standalone and offline. Do not add network setup, web
-  portals, OpenAI/API features, chat modes, or persistent save systems unless
-  the user explicitly asks.
+  portals, OpenAI/API features, or chat modes.
+- Persistent high scores are allowed and live on the microSD card via the
+  `bestLoad` / `bestSubmit` / `bestSubmitLow` helpers in `GameUtils`
+  (file `/cpgames.hi`). All SD access must degrade gracefully when no card is
+  present (helpers become no-ops and report no record). Do not add other
+  persistent stores (settings, journals, cloud sync).
 - Favor small, predictable game loops over dynamic allocation-heavy designs.
 - Keep controls consistent: movement through arrows, `WASD`, or `HJKL`; action
   through `Enter`, `Space`, or `BtnA`; exit through `Delete`, `q`, or `Tab`.
