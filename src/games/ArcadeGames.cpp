@@ -283,7 +283,7 @@ void runJumpRunner(GamerEngine& engine, const char* title, const char* key, Jump
           engine.playSound(SOUND_JUMP);
           uint32_t now = millis();
           if (now - lastFlip < 360) {  // quick double-flip bonus
-            score += 1; flipCount++;
+            score += 1;
             engine.playSound(SOUND_COMBO);
           }
           lastFlip = now;
@@ -706,7 +706,7 @@ void runLaneGame(GamerEngine& engine, const char* title, const char* key, LaneKi
       bool driftMove = false;
       if (engine.wasPressed(BTN_LEFT)) {
         if (kind == LANE_DRIFT && engine.isHeld(BTN_SELECT) && lane > 0) {
-          lane--; driftMove = true; turbo = turbo;  // drift slip
+          lane--; driftMove = true;  // drift slip
         } else if (lane > 0) lane--;
         engine.playSound(SOUND_UI_MOVE);
       }
@@ -910,6 +910,7 @@ void runBreakoutInternal(GamerEngine& engine) {
           vx += (ballX - (left + 12)) / 8;
           vx = constrain(vx, -4, 4);
           if (vx == 0) vx = 1;
+          shake = 2;
           engine.playSound(SOUND_HIT);
         }
         for (uint8_t r = 0; r < 4; r++)
