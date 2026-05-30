@@ -9,6 +9,10 @@ const CRGB CRGB::Blue = CRGB(0, 0, 255);
 const CRGB CRGB::Purple = CRGB(160, 0, 255);
 const CRGB CRGB::Aqua = CRGB(0, 220, 255);
 const CRGB CRGB::Orange = CRGB(255, 120, 0);
+const CRGB CRGB::Cyan = CRGB(0, 255, 255);
+const CRGB CRGB::Magenta = CRGB(255, 0, 255);
+const CRGB CRGB::Yellow = CRGB(255, 255, 0);
+const CRGB CRGB::White = CRGB(255, 255, 255);
 
 void CardputerGameDisplay::begin() {
   M5Cardputer.Display.setRotation(1);

@@ -42,4 +42,8 @@ struct CRGB {
   static const CRGB Purple;
   static const CRGB Aqua;
   static const CRGB Orange;
+  static const CRGB Cyan;
+  static const CRGB Magenta;
+  static const CRGB Yellow;
+  static const CRGB White;
 };
