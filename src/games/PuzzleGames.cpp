@@ -11,16 +11,6 @@ void drawCellValue(GamerEngine& engine, int16_t x, int16_t y, uint8_t value, uin
   }
 }
 
-int8_t cursorStep(GamerEngine& engine, int8_t current, int8_t count) {
-  const int8_t previous = current;
-  if (engine.wasPressed(BTN_LEFT)) current = current == 0 ? count - 1 : current - 1;
-  if (engine.wasPressed(BTN_RIGHT)) current = (current + 1) % count;
-  if (current != previous) {
-    engine.playSound(SOUND_UI_MOVE);
-  }
-  return current;
-}
-
 void flood(uint8_t board[5][5], uint8_t x, uint8_t y, uint8_t from, uint8_t to) {
   if (x >= 5 || y >= 5 || board[y][x] != from || from == to) return;
   board[y][x] = to;
@@ -182,7 +172,7 @@ void draw2048Board(GamerEngine& engine, uint8_t board[4][4], uint16_t score) {
         char label[5];
         tile2048Label(value, label, sizeof(label));
         const uint8_t len = strlen(label);
-        engine.screen().setTextColor(value >= 8 ? GAMER_BLACK : GAMER_BLACK,
+        engine.screen().setTextColor(GAMER_BLACK,
                                      value >= 8 ? GAMER_INVERSE : GAMER_ACCENT);
         engine.screen().setCursor(px + max<int16_t>(2, (cellW - len * 6) / 2),
                                   py + 3);
@@ -204,7 +194,7 @@ void runLightsOut(GamerEngine& engine) {
     while (true) {
       engine.tick();
       if (engine.shouldExitGame()) { engine.waitForRelease(); return; }
-      cursor = cursorStep(engine, cursor, 9);
+      cursor = gameCursorStep(engine, cursor, 9);
       if (selectTap(engine)) {
         int8_t x = cursor % 3;
         int8_t y = cursor / 3;
@@ -248,7 +238,7 @@ void runMinefield(GamerEngine& engine) {
     while (true) {
       engine.tick();
       if (engine.shouldExitGame()) { engine.waitForRelease(); return; }
-      cursor = cursorStep(engine, cursor, 16);
+      cursor = gameCursorStep(engine, cursor, 16);
       if (selectTap(engine) && !open[cursor]) {
         if (mine[cursor]) {
           engine.ledPulse(CRGB::Red, 260);
@@ -336,7 +326,7 @@ void runSlidingPuzzle(GamerEngine& engine) {
     while (true) {
       engine.tick();
       if (engine.shouldExitGame()) { engine.waitForRelease(); return; }
-      cursor = cursorStep(engine, cursor, 9);
+      cursor = gameCursorStep(engine, cursor, 9);
       if (selectTap(engine)) {
         uint8_t blank = 0;
         for (uint8_t i = 0; i < 9; i++) if (tiles[i] == 0) blank = i;
@@ -389,7 +379,7 @@ void runMemoryMatch(GamerEngine& engine) {
     while (true) {
       engine.tick();
       if (engine.shouldExitGame()) { engine.waitForRelease(); return; }
-      cursor = cursorStep(engine, cursor, 8);
+      cursor = gameCursorStep(engine, cursor, 8);
       if (selectTap(engine) && !matched[cursor]) {
         shown[cursor] = true;
         if (first < 0) first = cursor;
@@ -680,7 +670,7 @@ void runLaserMirror(GamerEngine& engine) {
     while (true) {
       engine.tick();
       if (engine.shouldExitGame()) { engine.waitForRelease(); return; }
-      cursor = cursorStep(engine, cursor, 9);
+      cursor = gameCursorStep(engine, cursor, 9);
       if (selectTap(engine)) {
         mirror[cursor] = !mirror[cursor];
         moves++;

@@ -1,4 +1,9 @@
 #include "Games.h"
+#include "GameUtils.h"
+
+namespace {
+constexpr uint16_t PONG_FRAME_MS = 24;
+}
 
 void runPong(GamerEngine& engine) {
   const int16_t ballSize = GAMER_DISPLAY_IS_SH8601 ? 12 : 4;
@@ -25,12 +30,10 @@ void runPong(GamerEngine& engine) {
         return;
       }
 
-      uint32_t now = millis();
-      if (now < nextFrame) {
+      if (!frameDue(nextFrame, PONG_FRAME_MS)) {
         delay(2);
         continue;
       }
-      nextFrame = now + 24;
 
       if (engine.isHeld(BTN_LEFT)) paddleX -= paddleSpeed;
       if (engine.isHeld(BTN_RIGHT)) paddleX += paddleSpeed;
@@ -73,9 +76,7 @@ void runPong(GamerEngine& engine) {
       if (ballY + ballSize > engine.height()) {
         engine.ledPulse(CRGB::Red, 280);
         engine.playSound(SOUND_LOSE);
-        char detail[18];
-        snprintf(detail, sizeof(detail), "Score %u", score);
-        if (!engine.showResult("GAME OVER", detail)) return;
+        if (!resultScreen(engine, "GAME OVER", score)) return;
         break;
       }
 
@@ -87,9 +88,7 @@ void runPong(GamerEngine& engine) {
       engine.clear();
       engine.screen().fillRect(paddleX, paddleY, paddleWidth, paddleHeight, GAMER_WHITE);
       engine.screen().fillRect(ballX, ballY, ballSize, ballSize, GAMER_WHITE);
-      char scoreText[8];
-      snprintf(scoreText, sizeof(scoreText), "%u", score);
-      engine.rightText(scoreText);
+      drawScore(engine, score);
       engine.show();
     }
   }

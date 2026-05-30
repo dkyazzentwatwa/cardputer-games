@@ -2,6 +2,8 @@
 #include "GameUtils.h"
 
 namespace {
+constexpr uint16_t LUNAR_FRAME_MS = 90;
+
 void drawLander(GamerEngine& engine, int16_t x, int16_t y, bool thrust) {
   const int16_t s = gameSize(engine, 3);
   engine.screen().drawRect(x + s, y + s, s * 3, s * 2, GAMER_WHITE);
@@ -35,12 +37,11 @@ void runLunarModule(GamerEngine& engine) {
         return;
       }
 
-      uint32_t now = millis();
-      if (now < nextFrame) {
+      const uint32_t now = millis();
+      if (!frameDue(nextFrame, LUNAR_FRAME_MS)) {
         delay(2);
         continue;
       }
-      nextFrame = now + 90;
 
       if (engine.isHeld(BTN_LEFT) && fuel > 0) {
         vx--;

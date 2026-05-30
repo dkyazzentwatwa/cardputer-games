@@ -2,6 +2,8 @@
 #include "GameUtils.h"
 
 namespace {
+constexpr uint16_t FULLSPEED_FRAME_MS = 70;
+
 void drawRoad(GamerEngine& engine, int16_t shift) {
   const int16_t horizonY = gameY(engine, 34);
   const int16_t roadBottom = engine.height() - 1;
@@ -45,12 +47,10 @@ void runFullSpeed(GamerEngine& engine) {
         return;
       }
 
-      uint32_t now = millis();
-      if (now < nextFrame) {
+      if (!frameDue(nextFrame, FULLSPEED_FRAME_MS)) {
         delay(2);
         continue;
       }
-      nextFrame = now + 70;
 
       if (engine.isHeld(BTN_LEFT)) playerX -= 3;
       if (engine.isHeld(BTN_RIGHT)) playerX += 3;
@@ -100,9 +100,7 @@ void runFullSpeed(GamerEngine& engine) {
       if (crash) {
         engine.ledPulse(CRGB::Red, 300);
         engine.playSound(SOUND_LOSE);
-        char detail[18];
-        snprintf(detail, sizeof(detail), "Score %u", score);
-        if (!engine.showResult("CRASH", detail)) return;
+        if (!resultScreen(engine, "CRASH", score)) return;
         break;
       }
     }

@@ -1,4 +1,5 @@
 #include "Games.h"
+#include "GameUtils.h"
 
 namespace {
 constexpr uint8_t CELL = GAMER_DISPLAY_IS_SH8601 ? 24 : 8;
@@ -62,9 +63,7 @@ void drawSnake(GamerEngine& engine, const Cell snake[], uint8_t length, const Ce
     engine.screen().drawRect(ox + snake[i].x * CELL, oy + snake[i].y * CELL, CELL, CELL,
                              i == length - 1 ? GAMER_ACCENT : GAMER_WHITE);
   }
-  char scoreText[8];
-  snprintf(scoreText, sizeof(scoreText), "%u", score);
-  engine.rightText(scoreText);
+  drawScore(engine, score);
   engine.show();
 }
 }
@@ -100,12 +99,10 @@ void runSnake(GamerEngine& engine) {
         engine.playSound(SOUND_UI_MOVE);
       }
 
-      uint32_t now = millis();
-      if (now < nextFrame) {
+      if (!frameDue(nextFrame, frameDelay)) {
         delay(2);
         continue;
       }
-      nextFrame = now + frameDelay;
 
       Cell head = snake[length - 1];
       if (direction == DIR_UP) head.y--;

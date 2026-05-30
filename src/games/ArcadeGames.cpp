@@ -28,7 +28,7 @@ void runJumpRunner(GamerEngine& engine, const char* title, bool flipMode) {
     if (!runIntro(engine, title, flipMode ? "SEL flips" : "SEL jumps")) return;
     int16_t y = flipMode ? 48 : 49;
     int16_t vy = 0;
-    int8_t gravity = flipMode ? 1 : 1;
+    int8_t gravity = 1;
     int16_t hazardX = 128;
     uint16_t score = 0;
     uint32_t nextFrame = 0;
